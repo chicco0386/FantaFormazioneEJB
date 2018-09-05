@@ -71,11 +71,11 @@ public class StatisticheEJB implements StatisticheLocal, StatisticheRemote {
         log.info("unmarshallAndSaveFromHtmlFile, entrato");
 
         //Download from site
-//        try {
-//            downloadFromSite();
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//        }
+        try {
+            downloadFromSite();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
         String rootHTMLFiles = ConfigurationUtil.getValue(Constants.CONF_KEY_HTML_ROOT);
         String nomeFileSquadre = ConfigurationUtil.getValue(Constants.CONF_KEY_HTML_FILE_STATISTICHE_G);
@@ -116,11 +116,15 @@ public class StatisticheEJB implements StatisticheLocal, StatisticheRemote {
         log.info("unmarshallAndSaveFromHtmlFile, uscito");
     }
 
-    private void downloadFromSite() throws Exception {
+    public void downloadFromSite() {
         String rootHTMLFiles = ConfigurationUtil.getValue(Constants.CONF_KEY_HTML_ROOT);
         String nomeFileSquadre = ConfigurationUtil.getValue(Constants.CONF_KEY_HTML_FILE_STATISTICHE_G);
         String pathFileHTMLStatistiche = FilenameUtils.concat(rootHTMLFiles, nomeFileSquadre);
-        FantaFormazioneUtil.salvaStatistichePerTutteLeGiornateNew(pathFileHTMLStatistiche);
+        try {
+            FantaFormazioneUtil.salvaStatistichePerTutteLeGiornateNew(pathFileHTMLStatistiche);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     private String createNomeFileGiornata(String nomeFile, String numGiornata) {

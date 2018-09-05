@@ -54,4 +54,9 @@ public class StatisticheSeamEJB implements StatisticheSeamRemote {
 		return toReturn;
 	}
 
+	@Override
+	public void downloadFromSite() {
+		statisticheEJB.downloadFromSite();
+	}
+
 }
