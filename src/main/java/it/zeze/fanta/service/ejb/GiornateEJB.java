@@ -20,7 +20,9 @@ import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactoryConfigurationError;
 import javax.xml.xpath.XPathExpressionException;
 
+import it.zeze.util.FantaFormazioneUtil;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.filefilter.WildcardFileFilter;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.LogManager;
@@ -66,6 +68,8 @@ public class GiornateEJB implements GiornateLocal, GiornateRemote {
 
 	@Override
 	public void unmarshallAndSaveFromHtmlFile(String stagione) {
+		downloadFromSite();
+
 		log.info("unmarshallAndSaveFromHtmlFile, entrato");
 		String rootHTMLFiles = ConfigurationUtil.getValue(Constants.CONF_KEY_HTML_ROOT);
 		String fileNameCalendario = ConfigurationUtil.getValue(Constants.CONF_KEY_HTML_FILE_CALENDARIO);
@@ -138,6 +142,19 @@ public class GiornateEJB implements GiornateLocal, GiornateRemote {
 			e.printStackTrace();
 		}
 		log.info("unmarshallAndSaveFromHtmlFile, uscito");
+	}
+
+	private void downloadFromSite() {
+		log.info("Start downloadFromSite...");
+		String rootHTMLFiles = ConfigurationUtil.getValue(Constants.CONF_KEY_HTML_ROOT);
+		String nomeFileSquadre = ConfigurationUtil.getValue(Constants.CONF_KEY_HTML_FILE_CALENDARIO_NEW);
+		String pathFileDest = FilenameUtils.concat(rootHTMLFiles, nomeFileSquadre);
+		try {
+			FantaFormazioneUtil.salvaCalendario(pathFileDest, false);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		log.info("... end downloadFromSite");
 	}
 
 	@Override

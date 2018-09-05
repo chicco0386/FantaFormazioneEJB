@@ -18,7 +18,9 @@ import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactoryConfigurationError;
 import javax.xml.xpath.XPathExpressionException;
 
+import it.zeze.util.FantaFormazioneUtil;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.filefilter.FileFilterUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.LogManager;
@@ -65,6 +67,8 @@ public class FormazioniFGEJB implements FormazioniFGLocal, FormazioniFGRemote {
 
 	@Override
 	public void unmarshallAndSaveFromHtmlFile(String stagione) {
+		downloadFromSite();
+
 		log.info("unmashallAndSaveFromHtmlFile, entrato");
 		String rootHTMLFiles = ConfigurationUtil.getValue(Constants.CONF_KEY_HTML_ROOT);
 		String nomeFileFormazioneFG = ConfigurationUtil.getValue(Constants.CONF_KEY_HTML_FILE_PROB_FORMAZIONI_FG);
@@ -79,6 +83,19 @@ public class FormazioniFGEJB implements FormazioniFGLocal, FormazioniFGRemote {
 			unmarshallAndSaveSingleHtmlFile(currentFile, stagione);
 		}
 		log.info("unmashallAndSaveFromHtmlFile, uscito");
+	}
+
+	private void downloadFromSite() {
+		log.info("Start downloadFromSite...");
+		String rootHTMLFiles = ConfigurationUtil.getValue(Constants.CONF_KEY_HTML_ROOT);
+		String pathFileHTMLProbFormazioniFG = ConfigurationUtil.getValue(Constants.CONF_KEY_HTML_FILE_PROB_FORMAZIONI_FG);
+		pathFileHTMLProbFormazioniFG = FilenameUtils.concat(rootHTMLFiles, pathFileHTMLProbFormazioniFG);
+		try {
+			FantaFormazioneUtil.salvaProbabiliFormazioniFG(pathFileHTMLProbFormazioniFG, false);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		log.info("... end downloadFromSite");
 	}
 	
 	private void unmarshallAndSaveSingleHtmlFile(File fileToElaborate, String stagione) {

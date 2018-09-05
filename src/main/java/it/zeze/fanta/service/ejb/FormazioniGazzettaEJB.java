@@ -14,7 +14,9 @@ import javax.ejb.Stateless;
 import javax.persistence.NoResultException;
 import javax.persistence.Query;
 
+import it.zeze.util.FantaFormazioneUtil;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.filefilter.FileFilterUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.LogManager;
@@ -62,6 +64,8 @@ public class FormazioniGazzettaEJB implements FormazioniGazzettaLocal, Formazion
 
 	@Override
 	public void unmarshallAndSaveFromHtmlFile(String stagione) {
+		downloadFromSite();
+
 		log.info("unmashallAndSaveFromHtmlFile, entrato");
 		String rootHTMLFiles = ConfigurationUtil.getValue(Constants.CONF_KEY_HTML_ROOT);
 		String nomeFileFormazioneGazzetta = ConfigurationUtil.getValue(Constants.CONF_KEY_HTML_FILE_PROB_FORMAZIONI_GAZZETTA);
@@ -109,6 +113,19 @@ public class FormazioniGazzettaEJB implements FormazioniGazzettaLocal, Formazion
 			}
 		}
 		log.info("unmashallAndSaveFromHtmlFile, uscito");
+	}
+
+	private void downloadFromSite() {
+		log.info("Start downloadFromSite...");
+		String rootHTMLFiles = ConfigurationUtil.getValue(Constants.CONF_KEY_HTML_ROOT);
+		String pathFileHTMLProbFormazioniGS = ConfigurationUtil.getValue(Constants.CONF_KEY_HTML_FILE_PROB_FORMAZIONI_GAZZETTA);
+		pathFileHTMLProbFormazioniGS = FilenameUtils.concat(rootHTMLFiles, pathFileHTMLProbFormazioniGS);
+		try {
+			FantaFormazioneUtil.salvaProbabiliFormazioniGazzetta(pathFileHTMLProbFormazioniGS, false);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		log.info("... end downloadFromSite");
 	}
 
 	private void unmarshallAndSaveSingleHtmlFile(File fileToElaborate, String currentDataGiornata) {

@@ -11,7 +11,9 @@ import javax.ejb.LocalBean;
 import javax.ejb.Stateless;
 import javax.persistence.Query;
 
+import it.zeze.util.*;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
@@ -25,10 +27,6 @@ import it.zeze.fanta.service.definition.ejb.SquadreLocal;
 import it.zeze.fantaformazioneweb.entity.Giocatori;
 import it.zeze.fantaformazioneweb.entity.Squadre;
 import it.zeze.html.cleaner.HtmlCleanerUtil;
-import it.zeze.util.ConfigurationUtil;
-import it.zeze.util.Constants;
-import it.zeze.util.JSONUtil;
-import it.zeze.util.NomiUtils;
 
 @Stateless
 @LocalBean
@@ -63,6 +61,8 @@ public class GiocatoriEJB implements GiocatoriLocal, GiocatoriRemote {
 
 	@Override
 	public void unmarshallAndSaveFromHtmlFile(String stagione, boolean noLike) {
+		downloadFromSite();
+
 		log.info("unmarshallAndSaveFromHtmlFile, entrato");
 		String rootHTMLFiles = ConfigurationUtil.getValue(Constants.CONF_KEY_HTML_ROOT);
 		// Portieri
@@ -248,6 +248,22 @@ public class GiocatoriEJB implements GiocatoriLocal, GiocatoriRemote {
 			e.printStackTrace();
 		}
 		log.info("unmarshallAndSaveFromHtmlFile, uscito");
+	}
+
+	private void downloadFromSite() {
+		log.info("Start downloadFromSite...");
+		String rootHTMLFiles = ConfigurationUtil.getValue(Constants.CONF_KEY_HTML_ROOT);
+		String pathFileHTMLGiocatori = ConfigurationUtil.getValue(Constants.CONF_KEY_HTML_FILE_GIOCATORI_GENERAL);
+		pathFileHTMLGiocatori = FilenameUtils.concat(rootHTMLFiles, pathFileHTMLGiocatori);
+		String pathFileHTMLGiocatoriRuolo = ConfigurationUtil.getValue(Constants.CONF_KEY_HTML_FILE_GIOCATORI_TEMPLATE);
+		pathFileHTMLGiocatoriRuolo = FilenameUtils.concat(rootHTMLFiles, pathFileHTMLGiocatoriRuolo);
+		String templateUrlGiocatori = ConfigurationUtil.getValue(Constants.CONF_KEY_HTML_FILE_GIOCATORI_URL);
+		try {
+			FantaFormazioneUtil.salvaTuttiGiocatoriNew(pathFileHTMLGiocatori, pathFileHTMLGiocatoriRuolo, templateUrlGiocatori, false);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		log.info("... end downloadFromSite");
 	}
 
 	@Override
@@ -439,7 +455,7 @@ public class GiocatoriEJB implements GiocatoriLocal, GiocatoriRemote {
 		}
 		return idGiocatore;
 	}
-	
+
 	@Override
 	public void insertOrUpdateGiocatore(String nomeSquadra, String nomeGiocatore, String ruolo, String stagione, boolean noLike) {
 		/*
@@ -466,7 +482,7 @@ public class GiocatoriEJB implements GiocatoriLocal, GiocatoriRemote {
 			}
 		}
 	}
-	
+
 	private void updateSquadraGiocatore(Giocatori giocatoreToUpdate, String nomeSquadra) {
 		log.info("updateSquadraGiocatore, aggiorno il giocatore ID [" + giocatoreToUpdate.getId() + "] [" + giocatoreToUpdate.getNome() + "] [" + giocatoreToUpdate.getRuolo() + "] alla squadra [" + nomeSquadra + "]");
 		int idSquadra = squadreEJB.getSquadraFromMapByNome(nomeSquadra).getId();
@@ -476,7 +492,7 @@ public class GiocatoriEJB implements GiocatoriLocal, GiocatoriRemote {
 		query.executeUpdate();
 		dbManager.getEm().flush();
 	}
-	
+
 	private void insertGiocatore(String nomeSquadra, String nomeGiocatore, String ruolo, String stagione) {
 		Squadre squadraGiocatore = squadreEJB.getSquadraFromMapByNome(nomeSquadra);
 		Squadre squadra = new Squadre();

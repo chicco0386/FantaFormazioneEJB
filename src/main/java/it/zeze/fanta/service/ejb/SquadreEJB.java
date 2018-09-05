@@ -19,6 +19,8 @@ import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactoryConfigurationError;
 import javax.xml.xpath.XPathExpressionException;
 
+import it.zeze.util.FantaFormazioneUtil;
+import org.apache.commons.io.FilenameUtils;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 import org.htmlcleaner.TagNode;
@@ -48,6 +50,8 @@ public class SquadreEJB implements SquadreLocal, SquadreRemote {
 
 	@Override
 	public void unmarshallAndSaveFromHtmlFile() {
+		downloadFromSite();
+
 		log.info("unmarshallAndSaveFromHtmlFile, entrato");
 		String rootHTMLFiles = ConfigurationUtil.getValue(Constants.CONF_KEY_HTML_ROOT);
 		String nomeFileSquadre = ConfigurationUtil.getValue(Constants.CONF_KEY_HTML_FILE_SQUADRE);
@@ -97,6 +101,19 @@ public class SquadreEJB implements SquadreLocal, SquadreRemote {
 			e.printStackTrace();
 		}
 		log.info("unmarshallAndSaveFromHtmlFile, uscito");
+	}
+
+	private void downloadFromSite() {
+		log.info("Start downloadFromSite...");
+		String rootHTMLFiles = ConfigurationUtil.getValue(Constants.CONF_KEY_HTML_ROOT);
+		String nomeFileSquadre = ConfigurationUtil.getValue(Constants.CONF_KEY_HTML_FILE_SQUADRE);
+		String pathFileHTMLSquadre = FilenameUtils.concat(rootHTMLFiles, nomeFileSquadre);
+		try {
+			FantaFormazioneUtil.salvaSquadre(pathFileHTMLSquadre, false);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		log.info("... end downloadFromSite");
 	}
 
 	@Override
