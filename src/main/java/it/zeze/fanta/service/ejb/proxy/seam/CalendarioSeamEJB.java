@@ -32,7 +32,7 @@ public class CalendarioSeamEJB implements CalendarioSeamRemote {
 	@Override
 	public GiornateWrap getGiornate() {
 		Giornate ejbResult = calendarioEJB.getGiornate();
-		GiornateWrap toReturn = null;
+		GiornateWrap toReturn = new GiornateWrap(ejbResult);
 		return toReturn;
 	}
 
