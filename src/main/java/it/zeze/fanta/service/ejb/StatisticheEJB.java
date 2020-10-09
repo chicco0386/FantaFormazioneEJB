@@ -1,13 +1,22 @@
 package it.zeze.fanta.service.ejb;
 
-import java.io.File;
-import java.io.IOException;
-import java.math.BigDecimal;
-import java.math.RoundingMode;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
+import it.zeze.fanta.db.DBManager;
+import it.zeze.fanta.service.definition.ejb.*;
+import it.zeze.fantaformazioneweb.entity.Giocatori;
+import it.zeze.fantaformazioneweb.entity.Giornate;
+import it.zeze.fantaformazioneweb.entity.Statistiche;
+import it.zeze.fantaformazioneweb.entity.StatisticheId;
+import it.zeze.html.cleaner.HtmlCleanerUtil;
+import it.zeze.util.ConfigurationUtil;
+import it.zeze.util.Constants;
+import it.zeze.util.FantaFormazioneUtil;
+import org.apache.commons.collections4.comparators.ComparatorChain;
+import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.lang.StringUtils;
+import org.apache.log4j.LogManager;
+import org.apache.log4j.Logger;
+import org.htmlcleaner.TagNode;
+import org.htmlcleaner.XPatherException;
 
 import javax.ejb.EJB;
 import javax.ejb.LocalBean;
@@ -18,29 +27,14 @@ import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactoryConfigurationError;
 import javax.xml.xpath.XPathExpressionException;
-
-import it.zeze.util.FantaFormazioneUtil;
-import org.apache.commons.collections4.comparators.ComparatorChain;
-import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.LogManager;
-import org.apache.log4j.Logger;
-import org.htmlcleaner.TagNode;
-import org.htmlcleaner.XPatherException;
-
-import it.zeze.fanta.db.DBManager;
-import it.zeze.fanta.service.definition.ejb.GiocatoriLocal;
-import it.zeze.fanta.service.definition.ejb.GiornateLocal;
-import it.zeze.fanta.service.definition.ejb.SquadreLocal;
-import it.zeze.fanta.service.definition.ejb.StatisticheLocal;
-import it.zeze.fanta.service.definition.ejb.StatisticheRemote;
-import it.zeze.fantaformazioneweb.entity.Giocatori;
-import it.zeze.fantaformazioneweb.entity.Giornate;
-import it.zeze.fantaformazioneweb.entity.Statistiche;
-import it.zeze.fantaformazioneweb.entity.StatisticheId;
-import it.zeze.html.cleaner.HtmlCleanerUtil;
-import it.zeze.util.ConfigurationUtil;
-import it.zeze.util.Constants;
+import java.io.File;
+import java.io.IOException;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
 
 @Stateless
 @LocalBean
@@ -254,13 +248,20 @@ public class StatisticheEJB implements StatisticheLocal, StatisticheRemote {
         int currentAmmonito;
 
         boolean html201718 = false;
+        boolean html202021 = false;
 
         try {
             currentNomeSquadra = HtmlCleanerUtil.getListOfElementsByXPathFromElement(currentNodeVotiSquadra, "//table//thead//h3").get(0).getText().toString();
         } catch (IndexOutOfBoundsException e) {
-            // Stagione 2017-18
-            currentNomeSquadra = HtmlCleanerUtil.getListOfElementsByXPathFromElement(currentNodeVotiSquadra, "//table//thead//span[@class='txtbig']").get(0).getText().toString();
-            html201718 = true;
+            try {
+                // Stagione 2020-21
+                currentNomeSquadra = HtmlCleanerUtil.getListOfElementsByXPathFromElement(currentNodeVotiSquadra, "//table//thead//figcaption").get(0).getText().toString();
+                html202021 = true;
+            } catch (IndexOutOfBoundsException ex) {
+                // Stagione 2017-18
+                currentNomeSquadra = HtmlCleanerUtil.getListOfElementsByXPathFromElement(currentNodeVotiSquadra, "//table//thead//span[@class='txtbig']").get(0).getText().toString();
+                html201718 = true;
+            }
         }
 
         log.info("Squadra [" + currentNomeSquadra + "]");
@@ -272,7 +273,11 @@ public class StatisticheEJB implements StatisticheLocal, StatisticheRemote {
         List<TagNode> listCurrentChild;
         for (TagNode currentGiocatore : listaGiocatori) {
             if (!html201718) {
-                tdIndexVotiMI = 10;
+                if (html202021) {
+                    tdIndexVotiMI = 7;
+                } else {
+                    tdIndexVotiMI = 10;
+                }
                 currentAmmonito = 0;
                 currentEspulso = 0;
                 currentGiocatoreNome = HtmlCleanerUtil.getListOfElementsByXPathFromElement(currentGiocatore, "//td[@class='pname']//a").get(0).getText().toString();
