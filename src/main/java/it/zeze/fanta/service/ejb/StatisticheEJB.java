@@ -115,7 +115,8 @@ public class StatisticheEJB implements StatisticheLocal, StatisticheRemote {
         String nomeFileSquadre = ConfigurationUtil.getValue(Constants.CONF_KEY_HTML_FILE_STATISTICHE_G);
         String pathFileHTMLStatistiche = FilenameUtils.concat(rootHTMLFiles, nomeFileSquadre);
         try {
-            FantaFormazioneUtil.salvaStatistichePerTutteLeGiornateNew(pathFileHTMLStatistiche);
+//            FantaFormazioneUtil.salvaStatistichePerTutteLeGiornateNew(pathFileHTMLStatistiche);
+            FantaFormazioneUtil.salvaStatistichePerTutteLeGiornateNew202122(pathFileHTMLStatistiche);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -270,19 +271,22 @@ public class StatisticheEJB implements StatisticheLocal, StatisticheRemote {
         List<TagNode> listaControlloCartellini;
         int tdIndexVotiMI;
         int indexNew;
+        int tdIndexBonus;
         List<TagNode> listCurrentChild;
         for (TagNode currentGiocatore : listaGiocatori) {
             if (!html201718) {
                 if (html202021) {
-                    tdIndexVotiMI = 7;
+                    tdIndexVotiMI = 6;
+                    tdIndexBonus = 8;
                 } else {
                     tdIndexVotiMI = 10;
+                    tdIndexBonus = tdIndexVotiMI + 1;
                 }
                 currentAmmonito = 0;
                 currentEspulso = 0;
-                currentGiocatoreNome = HtmlCleanerUtil.getListOfElementsByXPathFromElement(currentGiocatore, "//td[@class='pname']//a").get(0).getText().toString();
+                currentGiocatoreNome = HtmlCleanerUtil.getListOfElementsByXPathSpecialFromElement(currentGiocatore, "//span[contains(@class,'player-name')]").get(0).getText().toString();
                 currentGiocatoreRuolo = HtmlCleanerUtil.getListOfElementsByXPathSpecialFromElement(currentGiocatore, "//span[contains(@class,'role')]").get(0).getText().toString();
-                currentNodeVoto = HtmlCleanerUtil.getListOfElementsByXPathFromElement(currentGiocatore, "//td[" + tdIndexVotiMI++ + "]").get(0);
+                currentNodeVoto = HtmlCleanerUtil.getListOfElementsByXPathFromElement(currentGiocatore, "//td[" + tdIndexVotiMI + "]").get(0);
                 listaControlloCartellini = HtmlCleanerUtil.getListOfElementsByXPathSpecialFromElement(currentGiocatore, "//span[contains(@class,'trn-rr')]");
                 if (listaControlloCartellini == null || !listaControlloCartellini.isEmpty()) {
                     currentEspulso = currentEspulso + 1;
@@ -292,13 +296,13 @@ public class StatisticheEJB implements StatisticheLocal, StatisticheRemote {
                     currentAmmonito = currentAmmonito + 1;
                 }
                 mediaVotoString = currentNodeVoto.getText().toString();
-                currentGoalFattoString = HtmlCleanerUtil.getListOfElementsByXPathFromElement(currentGiocatore, "//td[" + tdIndexVotiMI++ + "]").get(0).getText().toString();
-                currentGoalSuRigoreString = HtmlCleanerUtil.getListOfElementsByXPathFromElement(currentGiocatore, "//td[" + tdIndexVotiMI++ + "]").get(0).getText().toString();
-                currentGoalSubitoString = HtmlCleanerUtil.getListOfElementsByXPathFromElement(currentGiocatore, "//td[" + tdIndexVotiMI++ + "]").get(0).getText().toString();
-                currentRigoreParatoString = HtmlCleanerUtil.getListOfElementsByXPathFromElement(currentGiocatore, "//td[" + tdIndexVotiMI++ + "]").get(0).getText().toString();
-                currentRigoreSbagliatoString = HtmlCleanerUtil.getListOfElementsByXPathFromElement(currentGiocatore, "//td[" + tdIndexVotiMI++ + "]").get(0).getText().toString();
-                currentAutoreteString = HtmlCleanerUtil.getListOfElementsByXPathFromElement(currentGiocatore, "//td[" + tdIndexVotiMI++ + "]").get(0).getText().toString();
-                currentAssistString = HtmlCleanerUtil.getListOfElementsByXPathFromElement(currentGiocatore, "//td[" + tdIndexVotiMI++ + "]").get(0).getText().toString();
+                currentGoalFattoString = HtmlCleanerUtil.getListOfElementsByXPathFromElement(currentGiocatore, "//td[" + tdIndexBonus++ + "]").get(0).getText().toString();
+                currentGoalSuRigoreString = HtmlCleanerUtil.getListOfElementsByXPathFromElement(currentGiocatore, "//td[" + tdIndexBonus++ + "]").get(0).getText().toString();
+                currentGoalSubitoString = HtmlCleanerUtil.getListOfElementsByXPathFromElement(currentGiocatore, "//td[" + tdIndexBonus++ + "]").get(0).getText().toString();
+                currentRigoreParatoString = HtmlCleanerUtil.getListOfElementsByXPathFromElement(currentGiocatore, "//td[" + tdIndexBonus++ + "]").get(0).getText().toString();
+                currentRigoreSbagliatoString = HtmlCleanerUtil.getListOfElementsByXPathFromElement(currentGiocatore, "//td[" + tdIndexBonus++ + "]").get(0).getText().toString();
+                currentAutoreteString = HtmlCleanerUtil.getListOfElementsByXPathFromElement(currentGiocatore, "//td[" + tdIndexBonus++ + "]").get(0).getText().toString();
+                currentAssistString = HtmlCleanerUtil.getListOfElementsByXPathFromElement(currentGiocatore, "//td[" + tdIndexBonus++ + "]").get(0).getText().toString();
             } else {
                 // New HTML from 2017-18
                 currentAmmonito = 0;
